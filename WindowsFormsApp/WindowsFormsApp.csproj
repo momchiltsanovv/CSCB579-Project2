@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Изключване на използването на икона -->
+    <ApplicationIcon />
   </PropertyGroup>
 
   <ItemGroup>
