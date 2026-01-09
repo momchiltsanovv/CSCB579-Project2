@@ -83,6 +83,7 @@ namespace TaskManager
             InitializeServices();
             InitializeMenu();
             InitializeUI();
+            InitializeStatusBar();
             InitializeEventHandlers();
             RefreshTaskList();
             UpdateStatistics();
@@ -94,10 +95,10 @@ namespace TaskManager
         private void InitializeComponent()
         {
             this.Text = "Task Manager - Управление на Задачи";
-            this.Size = new Size(1400, 900);
+            this.Size = new Size(1600, 1000);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.FromArgb(240, 240, 240);
-            this.MinimumSize = new Size(1200, 700);
+            this.MinimumSize = new Size(1400, 800);
         }
 
         /// <summary>
@@ -177,7 +178,8 @@ namespace TaskManager
             {
                 Dock = DockStyle.Fill,
                 Orientation = Orientation.Horizontal,
-                SplitterDistance = 400
+                SplitterDistance = 500, // Увеличен размер за по-голяма видима област за задачи
+                SplitterWidth = 5
             };
 
             // ListView за задачи
@@ -198,89 +200,100 @@ namespace TaskManager
             _taskListView.SelectedIndexChanged += TaskListView_SelectedIndexChanged;
             _taskListView.DoubleClick += TaskListView_DoubleClick;
 
-            // Панел за форма за въвеждане
+            // Панел за форма за въвеждане със скролбар
+            Panel inputContainer = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.FromArgb(250, 250, 250)
+            };
+
             _inputPanel = new Panel
             {
                 Dock = DockStyle.Fill,
                 BackColor = Color.FromArgb(250, 250, 250),
-                Padding = new Padding(10)
+                Padding = new Padding(10),
+                AutoScroll = true // Добавяне на автоматичен скролбар
             };
+            inputContainer.Controls.Add(_inputPanel);
 
             int yPos = 10;
-            int labelWidth = 100;
-            int controlWidth = 300;
-            int spacing = 35;
+            int labelWidth = 120;
+            int controlWidth = 400; // Увеличена ширина на контролите
+            int spacing = 40; // Увеличен разстояние между полетата
 
             // Заглавие
-            Label titleLabel = new Label { Text = _languageService.GetString("TitleLabel"), Location = new Point(10, yPos), Width = labelWidth };
-            _titleTextBox = new TextBox { Location = new Point(120, yPos), Width = controlWidth };
+            Label titleLabel = new Label { Text = _languageService.GetString("TitleLabel"), Location = new Point(10, yPos), Width = labelWidth, Font = new Font("Segoe UI", 9) };
+            _titleTextBox = new TextBox { Location = new Point(140, yPos), Width = controlWidth, Font = new Font("Segoe UI", 9) };
             _inputPanel.Controls.AddRange(new Control[] { titleLabel, _titleTextBox });
             yPos += spacing;
 
             // Описание
-            Label descLabel = new Label { Text = _languageService.GetString("DescriptionLabel"), Location = new Point(10, yPos), Width = labelWidth };
-            _descriptionTextBox = new TextBox { Location = new Point(120, yPos), Width = controlWidth, Height = 60, Multiline = true };
+            Label descLabel = new Label { Text = _languageService.GetString("DescriptionLabel"), Location = new Point(10, yPos), Width = labelWidth, Font = new Font("Segoe UI", 9) };
+            _descriptionTextBox = new TextBox { Location = new Point(140, yPos), Width = controlWidth, Height = 80, Multiline = true, Font = new Font("Segoe UI", 9), ScrollBars = ScrollBars.Vertical };
             _inputPanel.Controls.AddRange(new Control[] { descLabel, _descriptionTextBox });
-            yPos += 70;
+            yPos += 90;
 
             // Приоритет
-            Label priorityLabel = new Label { Text = _languageService.GetString("PriorityLabel"), Location = new Point(10, yPos), Width = labelWidth };
-            _priorityComboBox = new ComboBox { Location = new Point(120, yPos), Width = controlWidth, DropDownStyle = ComboBoxStyle.DropDownList };
+            Label priorityLabel = new Label { Text = _languageService.GetString("PriorityLabel"), Location = new Point(10, yPos), Width = labelWidth, Font = new Font("Segoe UI", 9) };
+            _priorityComboBox = new ComboBox { Location = new Point(140, yPos), Width = controlWidth, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 9) };
             _priorityComboBox.Items.AddRange(new string[] { "Low", "Medium", "High", "Critical" });
             _priorityComboBox.SelectedIndex = 1;
             _inputPanel.Controls.AddRange(new Control[] { priorityLabel, _priorityComboBox });
             yPos += spacing;
 
             // Статус
-            Label statusLabel = new Label { Text = _languageService.GetString("StatusLabel"), Location = new Point(10, yPos), Width = labelWidth };
-            _statusComboBox = new ComboBox { Location = new Point(120, yPos), Width = controlWidth, DropDownStyle = ComboBoxStyle.DropDownList };
+            Label statusLabel = new Label { Text = _languageService.GetString("StatusLabel"), Location = new Point(10, yPos), Width = labelWidth, Font = new Font("Segoe UI", 9) };
+            _statusComboBox = new ComboBox { Location = new Point(140, yPos), Width = controlWidth, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 9) };
             _statusComboBox.Items.AddRange(new string[] { "Pending", "InProgress", "Completed", "Cancelled" });
             _statusComboBox.SelectedIndex = 0;
             _inputPanel.Controls.AddRange(new Control[] { statusLabel, _statusComboBox });
             yPos += spacing;
 
             // Крайна дата
-            Label dueDateLabel = new Label { Text = _languageService.GetString("DueDateLabel"), Location = new Point(10, yPos), Width = labelWidth };
-            _hasDueDateCheckBox = new CheckBox { Text = "Има крайна дата", Location = new Point(120, yPos), Checked = false };
-            _dueDatePicker = new DateTimePicker { Location = new Point(120, yPos + 25), Width = controlWidth, Enabled = false };
+            Label dueDateLabel = new Label { Text = _languageService.GetString("DueDateLabel"), Location = new Point(10, yPos), Width = labelWidth, Font = new Font("Segoe UI", 9) };
+            _hasDueDateCheckBox = new CheckBox { Text = "Има крайна дата", Location = new Point(140, yPos), Checked = false, Font = new Font("Segoe UI", 9) };
+            _dueDatePicker = new DateTimePicker { Location = new Point(140, yPos + 30), Width = controlWidth, Enabled = false, Font = new Font("Segoe UI", 9) };
             _hasDueDateCheckBox.CheckedChanged += (s, e) => _dueDatePicker.Enabled = _hasDueDateCheckBox.Checked;
             _inputPanel.Controls.AddRange(new Control[] { dueDateLabel, _hasDueDateCheckBox, _dueDatePicker });
-            yPos += 60;
+            yPos += 70;
 
             // Категория
-            Label categoryLabel = new Label { Text = _languageService.GetString("CategoryLabel"), Location = new Point(10, yPos), Width = labelWidth };
-            _categoryTextBox = new TextBox { Location = new Point(120, yPos), Width = controlWidth, Text = "General" };
+            Label categoryLabel = new Label { Text = _languageService.GetString("CategoryLabel"), Location = new Point(10, yPos), Width = labelWidth, Font = new Font("Segoe UI", 9) };
+            _categoryTextBox = new TextBox { Location = new Point(140, yPos), Width = controlWidth, Text = "General", Font = new Font("Segoe UI", 9) };
             _inputPanel.Controls.AddRange(new Control[] { categoryLabel, _categoryTextBox });
             yPos += spacing + 20;
 
             // Бутони
-            _addButton = new Button { Text = _languageService.GetString("AddButton"), Location = new Point(120, yPos), Width = 100, Height = 35 };
+            _addButton = new Button { Text = _languageService.GetString("AddButton"), Location = new Point(140, yPos), Width = 110, Height = 40, Font = new Font("Segoe UI", 9, FontStyle.Bold), BackColor = Color.FromArgb(40, 167, 69), ForeColor = Color.White };
             _addButton.Click += AddButton_Click;
-            _updateButton = new Button { Text = _languageService.GetString("UpdateButton"), Location = new Point(230, yPos), Width = 100, Height = 35, Enabled = false };
+            _updateButton = new Button { Text = _languageService.GetString("UpdateButton"), Location = new Point(260, yPos), Width = 110, Height = 40, Enabled = false, Font = new Font("Segoe UI", 9, FontStyle.Bold), BackColor = Color.FromArgb(0, 123, 255), ForeColor = Color.White };
             _updateButton.Click += UpdateButton_Click;
-            _deleteButton = new Button { Text = _languageService.GetString("DeleteButton"), Location = new Point(340, yPos), Width = 100, Height = 35, Enabled = false, BackColor = Color.FromArgb(220, 53, 69), ForeColor = Color.White };
+            _deleteButton = new Button { Text = _languageService.GetString("DeleteButton"), Location = new Point(380, yPos), Width = 110, Height = 40, Enabled = false, BackColor = Color.FromArgb(220, 53, 69), ForeColor = Color.White, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
             _deleteButton.Click += DeleteButton_Click;
-            _clearButton = new Button { Text = "Изчисти", Location = new Point(450, yPos), Width = 100, Height = 35 };
+            _clearButton = new Button { Text = "Изчисти", Location = new Point(500, yPos), Width = 110, Height = 40, Font = new Font("Segoe UI", 9) };
             _clearButton.Click += (s, e) => ClearForm();
             _inputPanel.Controls.AddRange(new Control[] { _addButton, _updateButton, _deleteButton, _clearButton });
 
             // Филтри и сортиране
             yPos += 50;
-            _filterLabel = new Label { Text = "Филтър:", Location = new Point(10, yPos), Width = labelWidth };
-            _filterComboBox = new ComboBox { Location = new Point(120, yPos), Width = controlWidth, DropDownStyle = ComboBoxStyle.DropDownList };
+            _filterLabel = new Label { Text = "Филтър:", Location = new Point(10, yPos), Width = labelWidth, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
+            _filterComboBox = new ComboBox { Location = new Point(140, yPos), Width = controlWidth, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 9) };
             _filterComboBox.Items.AddRange(new string[] { "Всички", "Pending", "InProgress", "Completed", "Cancelled", "Overdue" });
             _filterComboBox.SelectedIndex = 0;
             _filterComboBox.SelectedIndexChanged += FilterComboBox_SelectedIndexChanged;
             yPos += spacing;
-            _sortLabel = new Label { Text = "Сортиране:", Location = new Point(10, yPos), Width = labelWidth };
-            _sortComboBox = new ComboBox { Location = new Point(120, yPos), Width = controlWidth, DropDownStyle = ComboBoxStyle.DropDownList };
+            _sortLabel = new Label { Text = "Сортиране:", Location = new Point(10, yPos), Width = labelWidth, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
+            _sortComboBox = new ComboBox { Location = new Point(140, yPos), Width = controlWidth, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 9) };
             _sortComboBox.Items.AddRange(new string[] { "По дата (ново)", "По дата (старо)", "По приоритет" });
             _sortComboBox.SelectedIndex = 0;
             _sortComboBox.SelectedIndexChanged += SortComboBox_SelectedIndexChanged;
             _inputPanel.Controls.AddRange(new Control[] { _filterLabel, _filterComboBox, _sortLabel, _sortComboBox });
 
+            // Задаване на минимална височина на панела за въвеждане
+            _inputPanel.MinimumSize = new Size(0, yPos + spacing + 50);
+
             leftSplit.Panel1.Controls.Add(_taskListView);
-            leftSplit.Panel2.Controls.Add(_inputPanel);
+            leftSplit.Panel2.Controls.Add(inputContainer);
 
             // Дясна страна - статистика
             _statisticsPanel = new Panel
@@ -315,6 +328,17 @@ namespace TaskManager
         }
 
         /// <summary>
+        /// Инициализира статус бара
+        /// </summary>
+        private void InitializeStatusBar()
+        {
+            _statusStrip = new StatusStrip();
+            _statusLabel = new ToolStripStatusLabel(_languageService.GetString("StatusReady"));
+            _statusStrip.Items.Add(_statusLabel);
+            this.Controls.Add(_statusStrip);
+        }
+
+        /// <summary>
         /// Инициализира обработчиците на събития
         /// </summary>
         private void InitializeEventHandlers()
@@ -327,12 +351,14 @@ namespace TaskManager
         /// </summary>
         private void RefreshTaskList()
         {
+            if (_taskListView == null) return;
+
             _taskListView.Items.Clear();
 
             List<Task> tasks = _taskManager.GetAllTasks();
 
             // Прилагане на филтър (използване на Interface)
-            if (_filterComboBox.SelectedIndex > 0)
+            if (_filterComboBox != null && _filterComboBox.SelectedIndex > 0)
             {
                 string filterText = _filterComboBox.SelectedItem.ToString();
                 if (filterText == "Overdue")
@@ -347,17 +373,17 @@ namespace TaskManager
             }
 
             // Прилагане на сортиране (използване на Interface)
-            if (_sortComboBox.SelectedIndex == 0)
+            if (_sortComboBox != null && _sortComboBox.SelectedIndex == 0)
             {
                 ITaskSorter sorter = new DateSorter(false);
                 tasks = _taskManager.SortTasks(sorter);
             }
-            else if (_sortComboBox.SelectedIndex == 1)
+            else if (_sortComboBox != null && _sortComboBox.SelectedIndex == 1)
             {
                 ITaskSorter sorter = new DateSorter(true);
                 tasks = _taskManager.SortTasks(sorter);
             }
-            else if (_sortComboBox.SelectedIndex == 2)
+            else if (_sortComboBox != null && _sortComboBox.SelectedIndex == 2)
             {
                 ITaskSorter sorter = new PrioritySorter();
                 tasks = _taskManager.SortTasks(sorter);
@@ -377,7 +403,10 @@ namespace TaskManager
                 _taskListView.Items.Add(item);
             }
 
-            _statusLabel.Text = $"Общо задачи: {_taskManager.GetAllTasks().Count}";
+            if (_statusLabel != null)
+            {
+                _statusLabel.Text = $"Общо задачи: {_taskManager.GetAllTasks().Count}";
+            }
         }
 
         /// <summary>
@@ -714,3 +743,4 @@ namespace TaskManager
         }
     }
 }
+
