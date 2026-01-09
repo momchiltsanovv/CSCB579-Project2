@@ -129,6 +129,20 @@ namespace WindowsFormsApp
             InitializeStatusBar();
             InitializeAnimation();
             SetupEventHandlers();
+            
+            // Осигуряване че drawing area-та се инициализира правилно след зареждане
+            this.Load += MainForm_Load;
+        }
+
+        /// <summary>
+        /// Обработчик за зареждане на формата - инициализира Bitmap с правилния размер
+        /// </summary>
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            if (_drawingArea.Width > 0 && _drawingArea.Height > 0)
+            {
+                DrawingArea_Resize(_drawingArea, EventArgs.Empty);
+            }
         }
 
         /// <summary>
@@ -138,11 +152,13 @@ namespace WindowsFormsApp
         {
             // Настройки на формата
             this.Text = "Графично Приложение - Graphics Application";
-            this.Size = new Size(1400, 900);
+            // Увеличаване на началния размер за по-голяма drawing area
+            this.Size = new Size(1600, 1000);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.FromArgb(240, 240, 240);
             this.DoubleBuffered = true; // За по-плавна анимация
-            this.MinimumSize = new Size(1000, 600);
+            this.MinimumSize = new Size(1200, 700);
+            this.WindowState = FormWindowState.Maximized; // Стартиране в максимизиран режим
 
             // Инициализиране на колекциите (Arrays & Collections)
             _shapes = new List<Shape>();
@@ -188,8 +204,9 @@ namespace WindowsFormsApp
             {
                 Dock = DockStyle.Fill,
                 Orientation = Orientation.Vertical,
-                SplitterDistance = 200,
-                FixedPanel = FixedPanel.Panel1
+                SplitterDistance = 180, // Намаляване на ширината на tools панела
+                FixedPanel = FixedPanel.Panel1,
+                SplitterWidth = 5 // По-видима разделителна линия
             };
             mainSplit.Panel2.Controls.Add(bottomSplit);
 
@@ -521,27 +538,29 @@ namespace WindowsFormsApp
                 Cursor = Cursors.Cross
             };
 
-            // Създаване на Bitmap за двойно буфериране
-            _bitmap = new Bitmap(1200, 800);
-            _graphics = Graphics.FromImage(_bitmap);
-            _graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            _graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            _graphics.CompositingQuality = CompositingQuality.HighQuality;
+            // Добавяне на drawing area в дясната страна
+            if (this.Controls[0] is SplitContainer mainSplit && 
+                mainSplit.Panel2.Controls[0] is SplitContainer bottomSplit)
+            {
+                bottomSplit.Panel2.Controls.Add(_drawingArea);
+                
+                // Създаване на начален Bitmap с голям размер
+                // Ще се пресъздаде с правилния размер в Load event
+                _bitmap = new Bitmap(1600, 1000);
+                _graphics = Graphics.FromImage(_bitmap);
+                _graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                _graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                _graphics.CompositingQuality = CompositingQuality.HighQuality;
 
-            _drawingArea.Image = _bitmap;
+                _drawingArea.Image = _bitmap;
+            }
+
             _drawingArea.MouseClick += DrawingArea_MouseClick;
             _drawingArea.MouseDown += DrawingArea_MouseDown;
             _drawingArea.MouseMove += DrawingArea_MouseMove;
             _drawingArea.MouseUp += DrawingArea_MouseUp;
             _drawingArea.Paint += DrawingArea_Paint;
             _drawingArea.Resize += DrawingArea_Resize;
-
-            // Добавяне на drawing area в дясната страна
-            if (this.Controls[0] is SplitContainer mainSplit && 
-                mainSplit.Panel2.Controls[0] is SplitContainer bottomSplit)
-            {
-                bottomSplit.Panel2.Controls.Add(_drawingArea);
-            }
         }
 
         /// <summary>
