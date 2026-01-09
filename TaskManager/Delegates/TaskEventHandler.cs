@@ -8,6 +8,8 @@
  */
 
 using TaskManager.Models;
+using Task = TaskManager.Models.Task;
+using TaskStatus = TaskManager.Models.TaskStatus;
 
 namespace TaskManager.Delegates
 {

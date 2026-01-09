@@ -15,9 +15,12 @@ using System.Linq;
 using System.Windows.Forms;
 using TaskManager.Delegates;
 using TaskManager.Filters;
+using TaskManager.Interfaces;
 using TaskManager.Models;
 using TaskManager.Services;
 using TaskManager.Sorters;
+using Task = TaskManager.Models.Task;
+using TaskStatus = TaskManager.Models.TaskStatus;
 
 namespace TaskManager
 {

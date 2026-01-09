@@ -9,6 +9,7 @@
 
 using System.Collections.Generic;
 using TaskManager.Models;
+using Task = TaskManager.Models.Task;
 
 namespace TaskManager.Interfaces
 {

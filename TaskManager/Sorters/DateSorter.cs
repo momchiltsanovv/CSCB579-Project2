@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TaskManager.Interfaces;
 using TaskManager.Models;
+using Task = TaskManager.Models.Task;
 
 namespace TaskManager.Sorters
 {
